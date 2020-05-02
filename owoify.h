@@ -227,7 +227,7 @@ public:
 private:
 	static Word map_O_To_OwO(Word& input)
 	{
-		auto number = std::roundf(getRandomValue(0.0f, 1.0f));
+		auto number = ::roundf(getRandomValue(0.0f, 1.0f));
 		return input.replace(L"o", number > 0.0f ? L"owo" : L"o");
 	}
 
@@ -266,12 +266,12 @@ private:
 
 	static Word map_PeriodCommaExclamationSemicolon_To_Kaomojis(Word& input)
 	{
-		auto index = std::floorf(getRandomValue(0.0f, 1.0f) * m_faces.size());
+		auto index = ::floorf(getRandomValue(0.0f, 1.0f) * m_faces.size());
 		input = input.replace(L"[.,](?![0-9])", [&]() {
 			return L" " + m_faces[index];
 			});
 
-		index = std::floorf(getRandomValue(0.0f, 1.0f) * m_faces.size());
+		index = ::floorf(getRandomValue(0.0f, 1.0f) * m_faces.size());
 		input = input.replace(L"[!;]+", [&]() {
 			return L" " + m_faces[index];
 			});
