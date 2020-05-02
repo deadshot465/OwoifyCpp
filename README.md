@@ -38,4 +38,4 @@ std::wcout << Owoifier::owoify(str, Owoifier::OwoifyLevel::Uvu) << '\n';
 
 ## Known Issue
 
-The PowerShell and the Command Prompt on Windows won't display the emojis in Uvu mode correctly even with `chcp 65001`. Zsh on macOS cannot display some special characters as well. However, from the debugger window, the input value is correctly owoified, so it might be a display issue in instead of a code issue. If you want to use the command in your project, please do note this issue and handle it beforehand.
+The PowerShell and the Command Prompt on Windows won't display the emojis in Uvu mode correctly even with `chcp 65001`. Zsh on macOS cannot display some special characters as well. However, from the debugger window, the input value is correctly owoified, so it might be a display issue instead of a code issue. If you want to use the command in your project, please do note this issue and handle it beforehand.
