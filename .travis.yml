@@ -1,0 +1,9 @@
+language: cpp
+root: required
+dist: bionic
+compiler:
+ - g++
+os:
+ - linux
+ before_install:
+  - chmod +x ./configure
