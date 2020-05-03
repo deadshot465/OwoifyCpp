@@ -1,6 +1,8 @@
 # Owoify++
 Turning your worst nightmare into a header only library.
 
+[![Build Status](https://travis-ci.com/deadshot465/OwoifyCpp.svg?branch=master)](https://travis-ci.com/deadshot465/OwoifyCpp)
+
 This is a C++ port of [mohan-cao's owoify-js](https://github.com/mohan-cao/owoify-js), which will help you turn any string into nonsensical babyspeak similar to LeafySweet's infamous Chrome extension. Just like owoify-js, three levels are available for owoifying your texts:
 
 1. **owo (default):** The most vanilla one.
