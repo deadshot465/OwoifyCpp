@@ -14,3 +14,7 @@ main.o : main.cpp
 .PHONY : clean
 clean :
 	rm main.o app.exe
+
+.PHONY : test
+test :
+	echo No Test Available.
