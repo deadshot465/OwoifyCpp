@@ -5,5 +5,5 @@ compiler:
  - g++
 os:
  - linux
- before_install:
-  - chmod +x ./configure
+before_install:
+ - chmod +x ./configure
