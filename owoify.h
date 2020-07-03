@@ -59,16 +59,14 @@ public:
 	friend class Utility;
 
 private:
-	Word& replace(const std::wstring& searchValue, const std::wstring& replaceValue,
+	Word& replace(const std::wregex& regex, const std::wstring& replaceValue,
 		bool replaceReplacedWords = false)
 	{
 		if (!replaceReplacedWords &&
-			searchValueContainsReplacedWords(searchValue, replaceValue))
+			searchValueContainsReplacedWords(regex, replaceValue))
 			return *this;
 
 		auto replacing_word = m_word;
-		auto regex = std::basic_regex(searchValue, std::regex_constants::ECMAScript |
-			std::regex_constants::optimize);
 
 		if (std::regex_search(m_word, regex))
 			replacing_word = std::regex_replace(m_word, regex, replaceValue);
@@ -94,18 +92,16 @@ private:
 		return *this;
 	}
 
-	Word& replace(const std::wstring& searchValue, const std::function<std::wstring()>& func,
+	Word& replace(const std::wregex& regex, const std::function<std::wstring()>& func,
 		bool replaceReplacedWords = false)
 	{
 		auto replace_value = func();
 
 		if (!replaceReplacedWords &&
-			searchValueContainsReplacedWords(searchValue, replace_value))
+			searchValueContainsReplacedWords(regex, replace_value))
 			return *this;
 
 		auto replacing_word = m_word;
-		auto regex = std::basic_regex(searchValue, std::regex_constants::ECMAScript |
-			std::regex_constants::optimize);
 
 		if (std::regex_search(m_word, regex))
 			replacing_word = std::regex_replace(m_word, regex, replace_value);
@@ -131,12 +127,10 @@ private:
 		return *this;
 	}
 
-	Word& replace(const std::wstring& searchValue,
+	Word& replace(const std::wregex& regex,
 		const std::function<std::wstring(const std::wstring&, const std::wstring&)> func,
 		bool replaceReplacedWords = false)
 	{
-		auto regex = std::basic_regex(searchValue, std::regex_constants::ECMAScript |
-			std::regex_constants::optimize);
 		if (!std::regex_search(m_word, regex))
 			return *this;
 
@@ -145,7 +139,7 @@ private:
 		auto replace_value = func(match[1], match[2]);
 
 		if (!replaceReplacedWords &&
-			searchValueContainsReplacedWords(searchValue, replace_value))
+			searchValueContainsReplacedWords(regex, replace_value))
 			return *this;
 
 		auto replacing_word = m_word;
@@ -175,10 +169,8 @@ private:
 	}
 
 private:
-	bool searchValueContainsReplacedWords(const std::wstring& searchValue, const std::wstring& replaceValue)
+	bool searchValueContainsReplacedWords(const std::wregex& regex, const std::wstring& replaceValue)
 	{
-		auto regex = std::basic_regex(searchValue, std::regex_constants::ECMAScript | std::regex_constants::optimize);
-
 		auto result = std::any_of(m_replacedWords.cbegin(), m_replacedWords.cend(), [&](const std::wstring& word) {
 			if (std::regex_search(word, regex))
 			{
@@ -225,54 +217,144 @@ public:
 	}
 
 private:
+	inline static const std::wregex MAP_O_TO_OWO = std::basic_regex(L"o", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_EW_TO_UWU = std::basic_regex(L"ew", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_HEY_TO_HAY = std::basic_regex(L"([Hh])ey", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_DEAD_TO_DED_UPPER = std::basic_regex(L"Dead", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_DEAD_TO_DED_LOWER = std::basic_regex(L"dead", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_N_VOWEL_T_TO_ND = std::basic_regex(L"n[aeiou]*t", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_READ_TO_WEAD_UPPER = std::basic_regex(L"Read", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_READ_TO_WEAD_LOWER = std::basic_regex(L"read", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_BRACKETS_TO_STARTRAILS_FORE = std::basic_regex(L"[({<]", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_BRACKETS_TO_STARTRAILS_REAR = std::basic_regex(L"[)}>]", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_PERIOD_COMMA_EXCLAMATION_SEMICOLON_TO_KAOMOJIS_FIRST = std::basic_regex(L"[.,](?![0-9])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_PERIOD_COMMA_EXCLAMATION_SEMICOLON_TO_KAOMOJIS_SECOND = std::basic_regex(L"[!;]+", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+
+	inline static const std::wregex MAP_THAT_TO_DAT_LOWER = std::basic_regex(L"that", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_THAT_TO_DAT_UPPER = std::basic_regex(L"That", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_TH_TO_F_UPPER = std::basic_regex(L"TH(?!E)", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_TH_TO_F_LOWER = std::basic_regex(L"[Tt]h(?![Ee])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_LE_TO_WAL = std::basic_regex(L"le$", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_VE_TO_WE_LOWER = std::basic_regex(L"ve", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_VE_TO_WE_UPPER = std::basic_regex(L"Ve", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_RY_TO_WWY = std::basic_regex(L"ry", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_RORL_TO_W_LOWER = std::basic_regex(L"(?:r|l)", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_RORL_TO_W_UPPER = std::basic_regex(L"(?:R|L)", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_LL_TO_WW = std::basic_regex(L"ll", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_VOWEL_OR_R_EXCEPT_O_L_TO_WL_LOWER = std::basic_regex(L"[aeiur]l$", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_VOWEL_OR_R_EXCEPT_O_L_TO_WL_UPPER = std::basic_regex(L"[AEIUR]([lL])$", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_OLD_TO_OWLD_LOWER = std::basic_regex(L"([Oo])ld", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_OLD_TO_OWLD_UPPER = std::basic_regex(L"OLD", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_OL_TO_OWL_LOWER = std::basic_regex(L"([Oo])l", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_OL_TO_OWL_UPPER = std::basic_regex(L"OL", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_LORR_O_TO_WO_LOWER = std::basic_regex(L"[lr]o", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_LORR_O_TO_WO_UPPER = std::basic_regex(L"[LR]([oO])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_SPECIFIC_CONSONANTS_O_TO_LETTER_AND_WO_LOWER = std::basic_regex(L"([bcdfghjkmnpqstxyz])o", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_SPECIFIC_CONSONANTS_O_TO_LETTER_AND_WO_UPPER = std::basic_regex(L"([BCDFGHJKMNPQSTXYZ])([oO])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+
+	inline static const std::wregex MAP_VORW_LE_TO_WAL = std::basic_regex(L"[vw]le", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_FI_TO_FWI_LOWER = std::basic_regex(L"([Ff])i", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_FI_TO_FWI_UPPER = std::basic_regex(L"FI", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_VER_TO_WER = std::basic_regex(L"([Vv])er", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_POI_TO_PWOI = std::basic_regex(L"([Pp])oi", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_SPECIFIC_CONSONANTS_LE_TO_LETTER_AND_WAL = std::basic_regex(L"([DdFfGgHhJjPpQqRrSsTtXxYyZz])le$", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_CONSONANT_R_TO_CONSONANT_W = std::basic_regex(L"([BbCcDdFfGgKkPpQqSsTtWwXxZz])r", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_LY_TO_WY_LOWER = std::basic_regex(L"ly", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_LY_TO_WY_UPPER = std::basic_regex(L"Ly", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_PLE_TO_PWE = std::basic_regex(L"([Pp])le", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_NR_TO_NW_LOWER = std::basic_regex(L"nr", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_NR_TO_NW_UPPER = std::basic_regex(L"NR", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_FUC_TO_FWUC = std::basic_regex(L"([Ff])uc", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_MOM_TO_MWOM = std::basic_regex(L"([Mm])om", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_ME_TO_MWE = std::basic_regex(L"([Mm])e", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_N_VOWEL_TO_NY_FIRST = std::basic_regex(L"n([aeiou])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_N_VOWEL_TO_NY_SECOND = std::basic_regex(L"N([aeiou])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_N_VOWEL_TO_NY_THIRD = std::basic_regex(L"N([AEIOU])", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_OVE_TO_UV_LOWER = std::basic_regex(L"ove", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_OVE_TO_UV_UPPER = std::basic_regex(L"OVE", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+
+	inline static const std::wregex MAP_HAHA_TO_HEHE_XD = std::basic_regex(L"\\b(ha|hah|heh|hehe)+\\b", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_THE_TO_TEH = std::basic_regex(L"\\b([Tt])he\\b", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_YOU_TO_U_UPPER = std::basic_regex(L"\\bYou\\b", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_YOU_TO_U_LOWER = std::basic_regex(L"\\byou\\b", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	
+	inline static const std::wregex MAP_TIME_TO_TIM = std::basic_regex(L"\\b([Tt])ime\\b", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_OVER_TO_OWOR = std::basic_regex(L"([Oo])ver", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+	inline static const std::wregex MAP_WORSE_TO_WOSE = std::basic_regex(L"([Ww])orse", std::regex_constants::ECMAScript | std::regex_constants::optimize);
+
 	static Word map_O_To_OwO(Word& input)
 	{
 		auto number = ::roundf(getRandomValue(0.0f, 1.0f));
-		return input.replace(L"o", number > 0.0f ? L"owo" : L"o");
+		return input.replace(MAP_O_TO_OWO, number > 0.0f ? L"owo" : L"o");
 	}
 
 	static Word map_Ew_To_UwU(Word& input)
 	{
-		return input.replace(L"ew", L"uwu");
+		return input.replace(MAP_EW_TO_UWU, L"uwu");
 	}
 
 	static Word map_Hey_To_Hay(Word& input)
 	{
-		return input.replace(L"([Hh])ey", L"$1ay");
+		return input.replace(MAP_HEY_TO_HAY, L"$1ay");
 	}
 
 	static Word map_Dead_To_Ded(Word& input)
 	{
-		return input.replace(L"Dead", L"Ded")
-			.replace(L"dead", L"ded");
+		return input.replace(MAP_DEAD_TO_DED_UPPER, L"Ded")
+			.replace(MAP_DEAD_TO_DED_LOWER, L"ded");
 	}
 
 	static Word map_N_Vowel_T_To_Nd(Word& input)
 	{
-		return input.replace(L"n[aeiou]*t", L"nd");
+		return input.replace(MAP_N_VOWEL_T_TO_ND, L"nd");
 	}
 
 	static Word map_Read_To_Wead(Word& input)
 	{
-		return input.replace(L"Read", L"Wead")
-			.replace(L"read", L"wead");
+		return input.replace(MAP_READ_TO_WEAD_UPPER, L"Wead")
+			.replace(MAP_READ_TO_WEAD_LOWER, L"wead");
 	}
 
 	static Word map_Brackets_To_StarTrails(Word& input)
 	{
-		return input.replace(L"[({<]", L"｡･:*:･ﾟ★,｡･:*:･ﾟ☆")
-			.replace(L"[)}>]", L"☆ﾟ･:*:･｡,★ﾟ･:*:･｡");
+		return input.replace(MAP_BRACKETS_TO_STARTRAILS_FORE, L"｡･:*:･ﾟ★,｡･:*:･ﾟ☆")
+			.replace(MAP_BRACKETS_TO_STARTRAILS_REAR, L"☆ﾟ･:*:･｡,★ﾟ･:*:･｡");
 	}
 
 	static Word map_PeriodCommaExclamationSemicolon_To_Kaomojis(Word& input)
 	{
 		auto index = ::floorf(getRandomValue(0.0f, 1.0f) * m_faces.size());
-		input = input.replace(L"[.,](?![0-9])", [&]() {
+		input = input.replace(MAP_PERIOD_COMMA_EXCLAMATION_SEMICOLON_TO_KAOMOJIS_FIRST, [&]() {
 			return L" " + m_faces[index];
 			});
 
 		index = ::floorf(getRandomValue(0.0f, 1.0f) * m_faces.size());
-		input = input.replace(L"[!;]+", [&]() {
+		input = input.replace(MAP_PERIOD_COMMA_EXCLAMATION_SEMICOLON_TO_KAOMOJIS_SECOND, [&]() {
 			return L" " + m_faces[index];
 			});
 
@@ -281,71 +363,71 @@ private:
 
 	static Word map_That_To_Dat(Word& input)
 	{
-		return input.replace(L"that", L"dat")
-			.replace(L"That", L"Dat");
+		return input.replace(MAP_THAT_TO_DAT_LOWER, L"dat")
+			.replace(MAP_THAT_TO_DAT_UPPER, L"Dat");
 	}
 
 	static Word map_Th_To_F(Word& input)
 	{
-		return input.replace(L"[Tt]h(?![Ee])", L"f")
-			.replace(L"TH(?!E)", L"F");
+		return input.replace(MAP_TH_TO_F_LOWER, L"f")
+			.replace(MAP_TH_TO_F_UPPER, L"F");
 	}
 
 	static Word map_Le_To_Wal(Word& input)
 	{
-		return input.replace(L"le$", L"wal");
+		return input.replace(MAP_LE_TO_WAL, L"wal");
 	}
 
 	static Word map_Ve_To_We(Word& input)
 	{
-		return input.replace(L"ve", L"we")
-			.replace(L"Ve", L"We");
+		return input.replace(MAP_VE_TO_WE_LOWER, L"we")
+			.replace(MAP_VE_TO_WE_UPPER, L"We");
 	}
 
 	static Word map_Ry_To_Wwy(Word& input)
 	{
-		return input.replace(L"ry", L"wwy");
+		return input.replace(MAP_RY_TO_WWY, L"wwy");
 	}
 
 	static Word map_ROrL_To_W(Word& input)
 	{
-		return input.replace(L"(?:r|l)", L"w")
-			.replace(L"(?:R|L)", L"W");
+		return input.replace(MAP_RORL_TO_W_LOWER, L"w")
+			.replace(MAP_RORL_TO_W_UPPER, L"W");
 	}
 
 	static Word map_Ll_To_Ww(Word& input)
 	{
-		return input.replace(L"ll", L"ww");
+		return input.replace(MAP_LL_TO_WW, L"ww");
 	}
 
 	static Word map_VowelOrRExceptO_L_To_Wl(Word& input)
 	{
-		return input.replace(L"[aeiur]l$", L"wl")
-			.replace(L"[AEIUR]([lL])$", L"W$1");
+		return input.replace(MAP_VOWEL_OR_R_EXCEPT_O_L_TO_WL_LOWER, L"wl")
+			.replace(MAP_VOWEL_OR_R_EXCEPT_O_L_TO_WL_UPPER, L"W$1");
 	}
 
 	static Word map_Old_To_Owld(Word& input)
 	{
-		return input.replace(L"([Oo])ld", L"$1wld")
-			.replace(L"OLD", L"OWLD");
+		return input.replace(MAP_OLD_TO_OWLD_LOWER, L"$1wld")
+			.replace(MAP_OLD_TO_OWLD_UPPER, L"OWLD");
 	}
 
 	static Word map_Ol_To_Owl(Word& input)
 	{
-		return input.replace(L"([Oo])l", L"$1wl")
-			.replace(L"OL", L"OWL");
+		return input.replace(MAP_OL_TO_OWL_LOWER, L"$1wl")
+			.replace(MAP_OL_TO_OWL_UPPER, L"OWL");
 	}
 
 	static Word map_LOrR_O_To_Wo(Word& input)
 	{
-		return input.replace(L"[lr]o", L"wo")
-			.replace(L"[LR]([oO])", L"W$1");
+		return input.replace(MAP_LORR_O_TO_WO_LOWER, L"wo")
+			.replace(MAP_LORR_O_TO_WO_UPPER, L"W$1");
 	}
 
 	static Word map_SpecificConsonants_O_To_Letter_And_Wo(Word& input)
 	{
-		return input.replace(L"([bcdfghjkmnpqstxyz])o", L"$1wo")
-			.replace(L"([BCDFGHJKMNPQSTXYZ])([oO])", [&](const std::wstring& m1,
+		return input.replace(MAP_SPECIFIC_CONSONANTS_O_TO_LETTER_AND_WO_LOWER, L"$1wo")
+			.replace(MAP_SPECIFIC_CONSONANTS_O_TO_LETTER_AND_WO_UPPER, [&](const std::wstring& m1,
 				const std::wstring& m2) {
 
 					std::wstring upper = L"";
@@ -360,109 +442,109 @@ private:
 
 	static Word map_VOrW_Le_To_Wal(Word& input)
 	{
-		return input.replace(L"[vw]le", L"wal");
+		return input.replace(MAP_VORW_LE_TO_WAL, L"wal");
 	}
 
 	static Word map_Fi_To_Fwi(Word& input)
 	{
-		return input.replace(L"([Ff])i", L"$1wi")
-			.replace(L"FI", L"FWI");
+		return input.replace(MAP_FI_TO_FWI_LOWER, L"$1wi")
+			.replace(MAP_FI_TO_FWI_UPPER, L"FWI");
 	}
 
 	static Word map_Ver_To_Wer(Word& input)
 	{
-		return input.replace(L"([Vv])er", L"wer");
+		return input.replace(MAP_VER_TO_WER, L"wer");
 	}
 
 	static Word map_Poi_To_Pwoi(Word& input)
 	{
-		return input.replace(L"([Pp])oi", L"$1woi");
+		return input.replace(MAP_POI_TO_PWOI, L"$1woi");
 	}
 
 	static Word map_SpecificConsonants_Le_To_Letter_And_Wal(Word& input)
 	{
-		return input.replace(L"([DdFfGgHhJjPpQqRrSsTtXxYyZz])le$", L"$1wal");
+		return input.replace(MAP_SPECIFIC_CONSONANTS_LE_TO_LETTER_AND_WAL, L"$1wal");
 	}
 
 	static Word map_Consonant_R_To_Consonant_W(Word& input)
 	{
-		return input.replace(L"([BbCcDdFfGgKkPpQqSsTtWwXxZz])r", L"$1w");
+		return input.replace(MAP_CONSONANT_R_TO_CONSONANT_W, L"$1w");
 	}
 
 	static Word map_Ly_To_Wy(Word& input)
 	{
-		return input.replace(L"ly", L"wy")
-			.replace(L"Ly", L"Wy");
+		return input.replace(MAP_LY_TO_WY_LOWER, L"wy")
+			.replace(MAP_LY_TO_WY_UPPER, L"Wy");
 	}
 
 	static Word map_Ple_To_Pwe(Word& input)
 	{
-		return input.replace(L"([Pp])le", L"1we");
+		return input.replace(MAP_PLE_TO_PWE, L"1we");
 	}
 
 	static Word map_Nr_To_Nw(Word& input)
 	{
-		return input.replace(L"nr", L"nw")
-			.replace(L"NR", L"NW");
+		return input.replace(MAP_NR_TO_NW_LOWER, L"nw")
+			.replace(MAP_NR_TO_NW_UPPER, L"NW");
 	}
 
 	static Word map_Fuc_To_Fwuc(Word& input)
 	{
-		return input.replace(L"([Ff])uc", L"$1wuc");
+		return input.replace(MAP_FUC_TO_FWUC, L"$1wuc");
 	}
 
 	static Word map_Mom_To_Mwom(Word& input)
 	{
-		return input.replace(L"([Mm])om", L"$1wom");
+		return input.replace(MAP_MOM_TO_MWOM, L"$1wom");
 	}
 
 	static Word map_Me_To_Mwe(Word& input)
 	{
-		return input.replace(L"([Mm])e", L"$1we");
+		return input.replace(MAP_ME_TO_MWE, L"$1we");
 	}
 
 	static Word map_NVowel_To_Ny(Word& input)
 	{
-		return input.replace(L"n([aeiou])", L"ny$1")
-			.replace(L"N([aeiou])", L"Ny$1")
-			.replace(L"N([AEIOU])", L"NY$1");
+		return input.replace(MAP_N_VOWEL_TO_NY_FIRST, L"ny$1")
+			.replace(MAP_N_VOWEL_TO_NY_SECOND, L"Ny$1")
+			.replace(MAP_N_VOWEL_TO_NY_THIRD, L"NY$1");
 	}
 
 	static Word map_Ove_To_Uv(Word& input)
 	{
-		return input.replace(L"ove", L"uv")
-			.replace(L"OVE", L"UV");
+		return input.replace(MAP_OVE_TO_UV_LOWER, L"uv")
+			.replace(MAP_OVE_TO_UV_UPPER, L"UV");
 	}
 
 	static Word map_Haha_To_HehexD(Word& input)
 	{
-		return input.replace(L"\\b(ha|hah|heh|hehe)+\\b", L"hehe xD");
+		return input.replace(MAP_HAHA_TO_HEHE_XD, L"hehe xD");
 	}
 
 	static Word map_The_To_Teh(Word& input)
 	{
-		return input.replace(L"\\b([Tt])he\\b", L"$1eh");
+		return input.replace(MAP_THE_TO_TEH, L"$1eh");
 	}
 
 	static Word map_You_To_U(Word& input)
 	{
-		return input.replace(L"\\bYou\\b", L"U")
-			.replace(L"\\byou\\b", L"u");
+		return input.replace(MAP_YOU_TO_U_UPPER, L"U")
+			.replace(MAP_YOU_TO_U_LOWER, L"u");
 	}
 
 	static Word map_Time_To_Tim(Word& input)
 	{
-		return input.replace(L"\\b([Tt])ime\\b", L"$1im");
+		return input.replace(MAP_TIME_TO_TIM, L"$1im");
 	}
 
 	static Word map_Over_To_Owor(Word& input)
 	{
-		return input.replace(L"([Oo])ver", L"$1wor");
+		return input.replace(MAP_OVER_TO_OWOR, L"$1wor");
 	}
 
 	static Word map_Worse_To_Wose(Word& input)
 	{
-		return input.replace(L"([Ww])orse", L"$1ose");
+		return input.replace(MAP_WORSE_TO_WOSE, L"$1ose");
 	}
 
 	template <typename T = std::mt19937, size_t N = T::state_size>
