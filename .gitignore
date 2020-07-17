@@ -1,3 +1,5 @@
 .vs/
 Debug/
 x64/
+app.exe
+main.o

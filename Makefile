@@ -9,7 +9,7 @@ app : main.o
 	$(LINK) -o app.exe main.o -lstdc++
 
 main.o : main.cpp
-	$(CC) -std=c++17 -Wall -c main.cpp -o main.o
+	$(CC) -std=c++17 -Wall -Ofast -c main.cpp -o main.o
 
 .PHONY : clean
 clean :
