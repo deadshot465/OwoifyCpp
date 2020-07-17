@@ -2,9 +2,9 @@
 #include <string>
 #include "owoify.h"
 
-int main()
+int main(int argc, const char* argv[])
 {
-    std::wstring str{ Owoifier::owoify(std::string{"This is the string to owo! Kinda cute isn't it?"}, Owoifier::OwoifyLevel::Uvu) };
+    std::wstring str{ Owoifier::owoify(std::string{argv[1]}, Owoifier::OwoifyLevel::Uvu) };
 
     return 0;
 }
